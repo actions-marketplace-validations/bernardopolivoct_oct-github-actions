@@ -49,7 +49,7 @@ runs:
       uses: abhilash1in/aws-secrets-manager-action@v2.0.0
       with:
         parse-json: true
-        secrets: ${{ env.role }}
+        secrets: ${{ env.ASM }}
 
     - name: Build Docker Image
       uses: docker/build-push-action@v2.10.0
