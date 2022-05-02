@@ -29,3 +29,47 @@ runs:
       uses: docker/setup-buildx-action@v1.6.0
       with:
         install: true
+
+    - name: Declare Cache Registry
+      id: cache-docker-images-code
+      uses: actions/cache@v2
+      with:
+        path: /tmp/.buildx-cache
+        key: ${{ runner.os }}-buildx-${{ github.sha }}
+        restore-keys: |
+          ${{ runner.os }}-buildx-
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1.6.1
+      with:
+        role-to-assume: ${{ secrets.role }}
+        aws-region: ${{ secrets.region }}
+
+    - name: Read secrets from AWS Secrets Manager into environment variables
+      uses: abhilash1in/aws-secrets-manager-action@v2.0.0
+      with:
+        parse-json: true
+        secrets: ${{ secrets.ASM }}
+
+    - name: Build Docker Image
+      uses: docker/build-push-action@v2.10.0
+      env:
+        NPM_CONFIG__AUTH: ${{ env.PRODUCTION_OCTANE_JENKINS_ARTIFACTORY_AUTH_ARTIFACTORYNPMAUTH }}
+        NPM_CONFIG_EMAIL: ${{ env.PRODUCTION_OCTANE_JENKINS_ARTIFACTORY_AUTH_ARTIFACTORYEMAIL }}
+        NPM_CONFIG_REGISTRY: ${{ env.PRODUCTION_OCTANE_JENKINS_ARTIFACTORY_AUTH_ARTIFACTORYNPMREGISTRY }}
+        PIP_INDEX_URL: ${{ env.PRODUCTION_OCTANE_JENKINS_ARTIFACTORY_AUTH_ARTIFACTORYPIPINDEXURL }}
+        NPM_CONFIG_ALWAYS_AUTH: "true"
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: octane-eng-portal
+        IMAGE_TAG: ${{ steps.increment-git-tag.outputs.git-tag }}
+      with:
+        context: .
+        builder: ${{ steps.buildx.outputs.name }}
+        file: docker/Dockerfile
+        push: false
+        tags: ${{ inputs.tag }}
+        cache-from: type=local,src=/tmp/.buildx-cache
+        cache-to: type=local,mode=max,dest=/tmp/.buildx-cache-new
+        load: ${{ inputs.load }}
+        build-args: PREPROD=${{ inputs.preprod }}
+        outputs: type=image,dest=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
