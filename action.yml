@@ -50,6 +50,8 @@ runs:
       with:
         parse-json: true
         secrets: ${{ env.ASM }}
+      run: |
+        env
 
     - name: Build Docker Image
       uses: docker/build-push-action@v2.10.0
