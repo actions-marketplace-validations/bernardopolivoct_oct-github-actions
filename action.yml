@@ -1,0 +1,31 @@
+name: "Build Container"
+description: "Build container"
+
+inputs:
+  region:
+    description: "AWS Region"
+    required: true
+  role:
+    description: "Role to assume (ECR)"
+    required: true
+  tag:
+    description: "Image tag in ECR"
+    required: true
+  preprod:
+    description: "Install dev dependencies"
+    required: true
+  load:
+    description: "Load"
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+
+    - name: Set up Docker Buildx
+      id: buildx
+      uses: docker/setup-buildx-action@v1.6.0
+      with:
+        install: true
