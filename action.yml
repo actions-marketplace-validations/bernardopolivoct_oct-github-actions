@@ -72,4 +72,3 @@ runs:
         cache-to: type=local,mode=max,dest=/tmp/.buildx-cache-new
         load: ${{ inputs.load }}
         build-args: PREPROD=${{ inputs.preprod }}
-        outputs: type=image,dest=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
