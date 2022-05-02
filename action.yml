@@ -51,7 +51,7 @@ runs:
         parse-json: true
         secrets: ${{ env.ASM }}
 
-    - run: env
+    - run: echo $PRODUCTION_OCTANE_JENKINS_ARTIFACTORY_AUTH_ARTIFACTORYEMAIL
       shell: bash
 
     - name: Build Docker Image
