@@ -49,7 +49,7 @@ runs:
       uses: abhilash1in/aws-secrets-manager-action@v2.0.0
       with:
         parse-json: true
-        secrets: ${{ secrets.ASM }}
+        secrets: ${{ env.ASM }}
 
     - name: Build Docker Image
       uses: docker/build-push-action@v2.10.0
@@ -60,7 +60,7 @@ runs:
         PIP_INDEX_URL: ${{ env.PRODUCTION_OCTANE_JENKINS_ARTIFACTORY_AUTH_ARTIFACTORYPIPINDEXURL }}
         NPM_CONFIG_ALWAYS_AUTH: "true"
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        ECR_REPOSITORY: octane-eng-portal
+        ECR_REPOSITORY: ${{ env.ECR_REPO }}
         IMAGE_TAG: ${{ steps.increment-git-tag.outputs.git-tag }}
       with:
         context: .
